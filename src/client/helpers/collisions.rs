@@ -1,4 +1,4 @@
-use crate::models::{ball::Ball, brick::Brick, paddle::Paddle};
+use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle};
 
 pub fn check_collision(ball: &mut Ball) {
     // Wall collision

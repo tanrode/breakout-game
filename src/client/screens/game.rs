@@ -1,9 +1,9 @@
 use raylib::color::Color;
 use raylib::prelude::*;
 use std::ffi::CString;
-use crate::models::{ball::Ball, brick::Brick, paddle::Paddle};
-use crate::helpers;
-use crate::screens::scoreboard::Scoreboard;
+use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle};
+use crate::client::helpers;
+use crate::client::screens::scoreboard::Scoreboard;
 
 
 pub fn game(gamer_id: &str) {
