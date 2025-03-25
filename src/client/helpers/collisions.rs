@@ -1,6 +1,6 @@
 use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle};
 
-pub fn check_collision(ball: &mut Ball) {
+pub fn check_collision(ball: &mut Ball) -> bool {
     // Wall collision
     if ball.x - ball.radius <= 0.0 || ball.x + ball.radius >= 800.0 {
         ball.dx *= -1.0;
@@ -10,9 +10,22 @@ pub fn check_collision(ball: &mut Ball) {
     // }
 
     // Wall collision (top and bottom - temporary till paddle & bricks logic is implemented)
-    if ball.y - ball.radius <= 0.0 || ball.y + ball.radius >= 800.0 {
+    if ball.y + ball.radius >= 800.0 {
+        print!("GAME OVER");
+        return false;
+    }
+
+    if ball.y - ball.radius <= 0.0 {
         ball.dy *= -1.0;
     }
+
+    return true;
+    
+    
+    // if ball.y - ball.radius <= 0.0 || ball.y + ball.radius >= 800.0 {
+    //     ball.dy *= -1.0;
+    // }
+
 }
 
 pub fn check_collision_ball_paddle(ball: &mut Ball, paddle: &Paddle) {

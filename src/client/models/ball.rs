@@ -9,6 +9,15 @@ pub struct Ball {
 }
 
 impl Ball {
+    pub fn new(x: f32, y: f32, radius: f32, dx: f32, dy: f32) -> Self {
+        Self {
+            x,
+            y,
+            radius,
+            dx,
+            dy,
+        }
+    }
     pub fn update(&mut self) {
         self.x += self.dx;
         self.y += self.dy;
