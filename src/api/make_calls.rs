@@ -1,5 +1,5 @@
 use reqwest::StatusCode;
-use crate::client::models::structures::{Leaderboard, User};
+use crate::client::models::structures::Leaderboard;
 
 pub async fn validate_credentials(gamer_id: &str, password: &str) -> Result<bool, reqwest::Error> {
     let client = reqwest::Client::new();
@@ -17,15 +17,9 @@ pub async fn validate_credentials(gamer_id: &str, password: &str) -> Result<bool
         .send()
         .await?;
 
-    // print!("STATUS: {}", response.status());
-    // print!("{}", response.status() == StatusCode::OK);
-    // print!("BODY: {}", response.text().await.unwrap());
-
     // Parse the response
     match response.status() {
         StatusCode::OK => {
-            let api_response: Vec<User> = response.json().await.unwrap();
-            // print!("{} {}", api_response[0].gamer_id, api_response[0].password);
                 Ok(true) // Success case
         },
         StatusCode::UNAUTHORIZED => {
@@ -59,7 +53,6 @@ pub async fn get_leaderboard() -> Result<Vec<Leaderboard>, reqwest::Error> {
 }
 
 pub async fn update_leaderboard(gamer_id: &str, high_score: i32, time_taken: &str) -> Result<Leaderboard, reqwest::Error> {
-    // todo!()
     let client = reqwest::Client::new();
     let api_url = "http://127.0.0.1:8080/update_stats";
 

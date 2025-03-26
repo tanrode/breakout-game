@@ -1,6 +1,5 @@
 use raylib::color::Color;
 use raylib::prelude::*;
-use std::ffi::CString;
 use crate::api;
 use crate::client::models::structures::Leaderboard;
 use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle};
@@ -29,7 +28,8 @@ pub async fn game(gamer_id: &str) {
         let mut scoreboard: Scoreboard = Scoreboard::new();
         let mut time_elapsed: String = String::new();
         let mut result: Result<Vec<Leaderboard>, reqwest::Error> = Ok(Vec::new());
-        let mut updated_stats: Result<Leaderboard, reqwest::Error> = Ok(Leaderboard::new());
+        // let mut updated_stats: Result<Leaderboard, reqwest::Error> = Ok(Leaderboard::new());
+        let mut updated_stats: Result<Leaderboard, reqwest::Error>;
 
         // Game Objects
         let mut ball: Ball = Ball::new(300.0, 300.0, 10.0, 8.0, 8.0);
