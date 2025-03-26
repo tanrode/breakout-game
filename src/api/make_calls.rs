@@ -57,3 +57,31 @@ pub async fn get_leaderboard() -> Result<Vec<Leaderboard>, reqwest::Error> {
         },
     }
 }
+
+pub async fn update_leaderboard(gamer_id: &str, high_score: i32, time_taken: &str) -> Result<Leaderboard, reqwest::Error> {
+    // todo!()
+    let client = reqwest::Client::new();
+    let api_url = "http://127.0.0.1:8080/update_stats";
+
+    let body = serde_json::json!({
+        "gamer_id": gamer_id,
+        "high_score": high_score,
+        "time": time_taken,
+    });
+
+    let response = client.patch(api_url)
+        .json(&body)
+        .send()
+        .await?;
+
+    // Parse the response
+    match response.status() {
+        StatusCode::OK => {
+            let api_response: Leaderboard = response.json().await.unwrap();
+            Ok(api_response)
+        },
+        _ => {
+            Err(response.error_for_status().unwrap_err())
+        },
+    }
+}

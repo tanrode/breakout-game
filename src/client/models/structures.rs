@@ -12,3 +12,9 @@ pub struct Leaderboard {
     pub high_score: i32,
     pub time: String,
 }
+
+impl Leaderboard {
+    pub fn new() -> Self {
+        Leaderboard { gamer_id: "".to_string(), high_score: 0, time: "".to_string() }
+    }
+}

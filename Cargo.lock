@@ -117,6 +117,7 @@ name = "breakout-game"
 version = "0.1.0"
 dependencies = [
  "bcrypt",
+ "lazy_static",
  "raylib",
  "reqwest",
  "rpassword",

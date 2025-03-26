@@ -8,7 +8,7 @@ use raylib::prelude::*;
 use reqwest::{self, StatusCode};
 use serde::{Deserialize, Serialize};
 use serde_json;
-mod client{pub mod helpers; pub mod models{pub mod ball; pub mod brick; pub mod paddle; pub mod structures;} pub mod screens{pub mod home; pub mod game; pub mod scoreboard; pub mod start;}}
+mod client{pub mod helpers; pub mod models{pub mod ball; pub mod brick; pub mod paddle; pub mod structures;} pub mod screens{pub mod home; pub mod game; pub mod scoreboard; pub mod start; pub mod game_play; pub mod game_over; pub mod leaderboard;}}
 // use raylib::gui::Gui;
 // use screens::game::Game;
 mod api{pub mod make_calls;}
