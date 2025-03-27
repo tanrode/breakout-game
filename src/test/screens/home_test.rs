@@ -49,7 +49,7 @@ mod tests {
         let credentials = get_input_from_user(&mut reader, password_reader);
 
         match credentials {
-            Ok((gamer_id, password)) => {
+            Ok((_gamer_id, _password)) => {
             }
             Err(e) => panic!("{}", e),
         }
@@ -65,7 +65,7 @@ mod tests {
         let credentials = get_input_from_user(&mut reader, password_reader);
 
         match credentials {
-            Ok((gamer_id, password)) => {
+            Ok((_gamer_id, _password)) => {
             }
             Err(e) => panic!("Error: {}", e),
         }
