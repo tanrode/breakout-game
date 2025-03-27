@@ -14,9 +14,9 @@ pub async fn validate_credentials( client: &Client, base_url: &str, gamer_id: &s
         .await?;
 
     match response.status() {
-        StatusCode::OK => Ok(true),           // Success
-        StatusCode::UNAUTHORIZED => Ok(false), // Unauthorized
-        _ => Err(response.error_for_status().unwrap_err()), // Error
+        StatusCode::OK => Ok(true),
+        StatusCode::UNAUTHORIZED => Ok(false),
+        _ => Err(response.error_for_status().unwrap_err()),
     }
 }
 

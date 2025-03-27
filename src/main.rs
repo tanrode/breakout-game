@@ -1,7 +1,6 @@
 mod client{pub mod helpers; pub mod models{pub mod ball; pub mod brick; pub mod paddle; pub mod structures;} pub mod screens{pub mod home; pub mod game; pub mod scoreboard; pub mod start; pub mod game_play; pub mod game_over; pub mod leaderboard;}}
 mod api{pub mod make_calls;}
 mod test{pub mod api;}
-// use test::api;
 
 
 #[tokio::main]
