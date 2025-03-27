@@ -20,10 +20,8 @@ pub fn draw_leaderboard_upper_half(d: &mut RaylibDrawHandle) {
 }
 
 pub fn draw_leaderboard_lower_half(d: &mut RaylibDrawHandle) -> bool {
-    // Instructions for Restart and Exit
     d.draw_text(helpers::font_data::INSTRUCTION_TEXT, (800 - helpers::font_data::TEXT_WIDTHS.instruction_width) / 2, 700, helpers::font_data::INSTRUCTION_FONT_SIZE, Color::GRAY);
 
-    // Check for R key press
     if d.is_key_pressed(KeyboardKey::KEY_R) {
         return true;
     }

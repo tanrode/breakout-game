@@ -24,22 +24,21 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
     let (mut rl, thread) = raylib::init().size(800, 800).title("Breakout Arcade Game").build();
         rl.set_target_fps(60);
 
+        // Game State Flag
         let mut first_state_visit: bool = true;
 
+        // Game Data
         let mut scoreboard: Scoreboard = Scoreboard::new();
         let mut time_elapsed: String = String::new();
         let mut result: Result<Vec<Leaderboard>, reqwest::Error> = Ok(Vec::new());
-        // let mut updated_stats: Result<Leaderboard, reqwest::Error> = Ok(Leaderboard::new());
         let mut updated_stats: Result<Leaderboard, reqwest::Error>;
+        let mut high_score: i32 = 0;
+        let mut time_taken: String = String::new();
 
         // Game Objects
         let mut ball: Ball = Ball::new(300.0, 300.0, 10.0, 8.0, 8.0);
         let mut paddle: Paddle = Paddle::new(400.0, 700.0, 100.0, 20.0, 16.0);
         let mut bricks: Vec<Brick> = Vec::new();
-
-        // User's best attempt
-        let mut high_score: i32 = 0;
-        let mut time_taken: String = String::new();
 
 
         while !rl.window_should_close() {
@@ -75,11 +74,9 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                         scoreboard = Scoreboard::new();
                         game_state = GameState::Playing;
                     }
-
-                    // first_state_visit = false;
                 }
                 GameState::Playing => {
-                    // Update Objects
+                    // Updating Game Objects
                     ball.update();
                     paddle.update(&mut rl);
                 
@@ -102,14 +99,14 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                         }
                     }
                 
-                    // Rendering
+                    // Rendering Game Objects
                     let mut d = rl.begin_drawing(&thread);
                     game_play::game_play(&mut d, &mut ball, &mut paddle, &mut bricks, &mut scoreboard);
                 }
                 GameState::GameOver => {
                     let mut d = rl.begin_drawing(&thread);
                     
-                    // Fetch user's high score and time & update if necessary
+                    // Update & fetch user's best attempt stats
                     if first_state_visit {
                         first_state_visit = false;
                         updated_stats = api::make_calls::update_leaderboard(client, base_url, gamer_id, scoreboard.score, &time_elapsed).await;
@@ -134,6 +131,7 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                 GameState::Leaderboard => {   
                     let mut d = rl.begin_drawing(&thread);
                     
+                    // Leaderboard Data Rendering Co-ordinates
                     let rank_x = 150;
                     let name_x = 250;
                     let score_x = 500;
