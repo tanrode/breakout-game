@@ -1,5 +1,6 @@
 use raylib::color::Color;
 use raylib::prelude::*;
+use reqwest::Client;
 use crate::api;
 use crate::client::models::structures::Leaderboard;
 use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle};
@@ -17,7 +18,7 @@ enum GameState {
     Leaderboard,
 }
 
-pub async fn game(gamer_id: &str) {
+pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
     let mut game_state = GameState::StartScreen;
 
     let (mut rl, thread) = raylib::init().size(800, 800).title("Breakout Arcade Game").build();
@@ -111,7 +112,7 @@ pub async fn game(gamer_id: &str) {
                     // Fetch user's high score and time & update if necessary
                     if first_state_visit {
                         first_state_visit = false;
-                        updated_stats = api::make_calls::update_leaderboard(gamer_id, scoreboard.score, &time_elapsed).await;
+                        updated_stats = api::make_calls::update_leaderboard(client, base_url, gamer_id, scoreboard.score, &time_elapsed).await;
                         match updated_stats {
                             Ok(ref leaderboard) => {
                                 high_score = leaderboard.high_score;
@@ -142,7 +143,7 @@ pub async fn game(gamer_id: &str) {
 
                     // Fetch and Display Leaderboard Data
                     if first_state_visit {
-                        result = api::make_calls::get_leaderboard().await;
+                        result = api::make_calls::get_leaderboard(client, base_url).await;
                         println!("Leaderboard fetched successfully");
                         first_state_visit = false;
                     }

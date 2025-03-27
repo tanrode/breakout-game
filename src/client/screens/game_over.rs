@@ -18,15 +18,13 @@ pub fn game_over(d: &mut RaylibDrawHandle, scoreboard: &mut Scoreboard, high_sco
     // Highlighting User's Best Score & Time
     let best_score_text = format!("Best Score: {}", high_score);
     let best_time_text = format!("Best Time: {} sec", time_taken);
-
-    // Position this row a little below the score/time display (say at Y = 400)
     d.draw_text(&best_score_text, (800 - helpers::font_data::TEXT_WIDTHS.best_score_width) / 2, 400, helpers::font_data::FONT_SIZE_SMALL, Color::GREEN);
     d.draw_text(&best_time_text, (800 - helpers::font_data::TEXT_WIDTHS.best_time_width) / 2, 450, helpers::font_data::FONT_SIZE_SMALL, Color::GREEN);
 
-    // Instruction to Continue (now after the best score/time row)
+    // Instruction to Continue
     d.draw_text(helpers::font_data::CONTINUE_TEXT, (800 - helpers::font_data::TEXT_WIDTHS.continue_width) / 2, 500, helpers::font_data::FONT_SIZE_SMALLEST, Color::GRAY);
 
-    // Check for Space Press
+    // Check for Spacebar Press
     if d.is_key_pressed(KeyboardKey::KEY_SPACE) {
         return true;
     }

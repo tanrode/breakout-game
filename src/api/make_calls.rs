@@ -1,46 +1,30 @@
-use reqwest::StatusCode;
+use reqwest::{Client, StatusCode};
+use serde_json::json;
 use crate::client::models::structures::Leaderboard;
 
-pub async fn validate_credentials(gamer_id: &str, password: &str) -> Result<bool, reqwest::Error> {
-    let client = reqwest::Client::new();
-    let api_url = "http://127.0.0.1:8080/user/login"; // Replace with your API endpoint
-
-    // Prepare the payload for the POST request
-    let body = serde_json::json!({
+pub async fn validate_credentials( client: &Client, base_url: &str, gamer_id: &str, password: &str) -> Result<bool, reqwest::Error> {
+    let body = json!({
         "gamer_id": gamer_id,
         "password": password,
     });
 
-    // Send the request
-    let response = client.post(api_url)
+    let response = client.post(base_url.to_owned()+"/user/login")
         .json(&body)
         .send()
         .await?;
 
-    // Parse the response
     match response.status() {
-        StatusCode::OK => {
-                Ok(true) // Success case
-        },
-        StatusCode::UNAUTHORIZED => {
-            Ok(false)
-        },
-        _ => {
-            Err(response.error_for_status().unwrap_err())
-        },
+        StatusCode::OK => Ok(true),           // Success
+        StatusCode::UNAUTHORIZED => Ok(false), // Unauthorized
+        _ => Err(response.error_for_status().unwrap_err()), // Error
     }
 }
 
-pub async fn get_leaderboard() -> Result<Vec<Leaderboard>, reqwest::Error> {
-    // todo!()
-    let client = reqwest::Client::new();
-    let api_url = "http://127.0.0.1:8080/leaderboard";
-
-    let response = client.get(api_url)
+pub async fn get_leaderboard(client: &Client, base_url: &str) -> Result<Vec<Leaderboard>, reqwest::Error> {
+    let response = client.get(base_url.to_owned()+"/leaderboard")
         .send()
         .await?;
 
-    // Parse the response
     match response.status() {
         StatusCode::OK => {
             let api_response: Vec<Leaderboard> = response.json().await.unwrap();
@@ -52,22 +36,18 @@ pub async fn get_leaderboard() -> Result<Vec<Leaderboard>, reqwest::Error> {
     }
 }
 
-pub async fn update_leaderboard(gamer_id: &str, high_score: i32, time_taken: &str) -> Result<Leaderboard, reqwest::Error> {
-    let client = reqwest::Client::new();
-    let api_url = "http://127.0.0.1:8080/update_stats";
-
-    let body = serde_json::json!({
+pub async fn update_leaderboard(client: &Client, base_url: &str, gamer_id: &str, high_score: i32, time_taken: &str) -> Result<Leaderboard, reqwest::Error> {
+    let body = json!({
         "gamer_id": gamer_id,
         "high_score": high_score,
         "time": time_taken,
     });
 
-    let response = client.patch(api_url)
+    let response = client.patch(base_url.to_owned()+"/update_stats")
         .json(&body)
         .send()
         .await?;
 
-    // Parse the response
     match response.status() {
         StatusCode::OK => {
             let api_response: Leaderboard = response.json().await.unwrap();
