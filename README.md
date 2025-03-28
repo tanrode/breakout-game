@@ -2,6 +2,10 @@
 The Classic Breakout Arcade game, built in Rust using Raylib.
 
 # Project Demo
+#### Note: 
+Some sections of the game experience appear glitchy in the video, likely due to an issue with the recording tool. Please be rest assured that the game functions seamlessly :)
+
+https://github.com/user-attachments/assets/2d43761f-f94f-479a-a2d1-51880e46a971
 
 # Tech-Stack Overview:
 ![image](https://github.com/user-attachments/assets/1d2c1e95-4191-48e9-83b8-923c65dbed0c)
@@ -35,10 +39,10 @@ Note: This repository contains code only for the front-end. For the back-end cod
 </ul>
 
 # Screens
-### 1. User Authentication: <br> ![image](https://github.com/user-attachments/assets/bb7fb3f6-b5ec-47a5-82c4-63e9db4739db)
-### 2. Welcome Screen: <br> ![image](https://github.com/user-attachments/assets/78a1ed0a-f558-4d69-971c-4bbc20b023c4)
-### 3. Game Screen: <br>
-### 4. User Stats Screen: <br> ![image](https://github.com/user-attachments/assets/1764b10b-5226-4291-aafd-c3e608da6bbd)
-### 5. Leaderboard: <br> ![image](https://github.com/user-attachments/assets/db0f1714-e180-4938-a993-19239bfce0fa)
+### 1. User Authentication: <br><br> ![image](https://github.com/user-attachments/assets/bb7fb3f6-b5ec-47a5-82c4-63e9db4739db)
+### 2. Welcome Screen: <br><br> ![image](https://github.com/user-attachments/assets/78a1ed0a-f558-4d69-971c-4bbc20b023c4)
+### 3. Game Screen: <br><br> ![image](https://github.com/user-attachments/assets/94c05a43-dc3e-41e3-91f7-6a9a0fba8222)
+### 4. User Stats Screen: <br><br> ![image](https://github.com/user-attachments/assets/1764b10b-5226-4291-aafd-c3e608da6bbd)
+### 5. Leaderboard: <br><br> ![image](https://github.com/user-attachments/assets/db0f1714-e180-4938-a993-19239bfce0fa)
 
 
