@@ -1,5 +1,6 @@
 # Breakout Arcade Game
-The Classic Breakout Arcade game, built in Rust using Raylib.
+The Classic Breakout Arcade game, built in Rust using Raylib.<br><br>
+Note: This repository contains code for the front-end. For the back-end code, visit: https://github.com/tanrode/breakout-game-backend
 
 # Project Demo
 #### Note: 
@@ -9,8 +10,6 @@ https://github.com/user-attachments/assets/2d43761f-f94f-479a-a2d1-51880e46a971
 
 # Tech-Stack Overview:
 ![image](https://github.com/user-attachments/assets/1d2c1e95-4191-48e9-83b8-923c65dbed0c)
-
-Note: This repository contains code only for the front-end. For the back-end code, visit: https://github.com/tanrode/breakout-game-backend
 
 # Crates used:
 ### For Development
