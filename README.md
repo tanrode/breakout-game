@@ -33,3 +33,12 @@ Note: This repository contains code only for the front-end. For the back-end cod
   <li>User Stats: View stats about your most recent as well as your best attempt.</li>
   <li>Leaderboard: View statistics of the top players of the game.</li>
 </ul>
+
+# Screens
+### 1. User Authentication: <br> ![image](https://github.com/user-attachments/assets/bb7fb3f6-b5ec-47a5-82c4-63e9db4739db)
+### 2. Welcome Screen: <br> ![image](https://github.com/user-attachments/assets/78a1ed0a-f558-4d69-971c-4bbc20b023c4)
+### 3. Game Screen: <br>
+### 4. User Stats Screen: <br> ![image](https://github.com/user-attachments/assets/1764b10b-5226-4291-aafd-c3e608da6bbd)
+### 5. Leaderboard: <br> ![image](https://github.com/user-attachments/assets/db0f1714-e180-4938-a993-19239bfce0fa)
+
+
