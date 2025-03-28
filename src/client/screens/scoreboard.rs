@@ -18,12 +18,16 @@ impl Scoreboard {
         self.score += 1;
     }
 
-    pub fn draw(&self, d: &mut RaylibDrawHandle) {
-        // Calculate the elapsed time
+    pub fn get_time_elapsed(&self) -> String {
         let elapsed = self.start_time.elapsed();
         let minutes = elapsed.as_secs() / 60;
         let seconds = elapsed.as_secs() % 60;
         let time_str = format!("{:02}:{:02}", minutes, seconds);
+        time_str
+    }
+
+    pub fn draw(&self, d: &mut RaylibDrawHandle) {
+        let time_str = self.get_time_elapsed();
 
         // Draw the Scoreboard
         d.draw_text(&format!("Score: {}", self.score), 20, 20, 30, Color::WHITE);

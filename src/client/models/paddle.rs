@@ -9,6 +9,15 @@ pub struct Paddle {
 }
 
 impl Paddle {
+    pub fn new(x: f32, y: f32, width: f32, height: f32, speed: f32) -> Self {
+        Self {
+            x,
+            y,
+            width,
+            height,
+            speed,
+        }
+    }
     pub fn update(&mut self, rl: &RaylibHandle) {
         if rl.is_key_down(KeyboardKey::KEY_LEFT) {
             self.x -= self.speed;
