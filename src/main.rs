@@ -15,10 +15,8 @@ async fn main() {
     let client = reqwest::Client::new();
     let mut reader = io::BufReader::new(io::stdin());
     let password_reader: fn() -> Result<String, std::io::Error> = read_password;
-    // let mut password_reader = rpassword::read_password;
 
     while is_home_screen {
-        // let (input_gamer_id, input_password) = client::screens::home::get_input_from_user(&mut reader, password_reader);
         let credentials = client::screens::home::get_input_from_user(&mut reader, password_reader);
 
         match credentials {
@@ -45,7 +43,6 @@ async fn main() {
                 continue;
             }
         }
-        
         
     }
 
