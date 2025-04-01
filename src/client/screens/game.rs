@@ -8,8 +8,10 @@ use crate::client::helpers;
 use crate::client::screens::scoreboard::Scoreboard;
 use crate::client::screens::start;
 use crate::client::screens::game_play;
-use crate::client::screens::game_over;
 use crate::client::screens::leaderboard;
+
+use super::game_over::{handle_game_over, GameOverScreen};
+use super::start::handle_game_start;
 
 enum GameState {
     StartScreen,
@@ -32,13 +34,14 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
         let mut time_elapsed: String = String::new();
         let mut result: Result<Vec<Leaderboard>, reqwest::Error> = Ok(Vec::new());
         let mut updated_stats: Result<Leaderboard, reqwest::Error>;
-        let mut high_score: i32 = 0;
-        let mut time_taken: String = String::new();
 
         // Game Objects
         let mut ball: Ball = Ball::new(300.0, 300.0, 10.0, 8.0, 8.0);
         let mut paddle: Paddle = Paddle::new(400.0, 700.0, 100.0, 20.0, 16.0);
         let mut bricks: Vec<Brick> = Vec::new();
+
+        let mut game_start_screen = start::StartScreen::new(&mut rl, &thread);
+        let mut game_over_screen = GameOverScreen::new(&mut rl, &thread);
 
 
         while !rl.window_should_close() {
@@ -67,13 +70,18 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                         }
                     }
 
-                    let mut d = rl.begin_drawing(&thread);
-                    
-                    if start::start(gamer_id, &mut d) {
-                        first_state_visit = true;
-                        scoreboard = Scoreboard::new();
-                        game_state = GameState::Playing;
+                    if first_state_visit {
+                        game_start_screen.render_static_screen(&mut rl, &thread, gamer_id);
+                        first_state_visit = false;
                     }
+                    else{
+                        if handle_game_start(&mut rl, &thread, &mut game_start_screen) {
+                            first_state_visit = true;
+                            scoreboard = Scoreboard::new();
+                            game_state = GameState::Playing;
+                        }
+                    }
+
                 }
                 GameState::Playing => {
                     // Updating Game Objects
@@ -104,25 +112,22 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                     game_play::game_play(&mut d, &mut ball, &mut paddle, &mut bricks, &mut scoreboard);
                 }
                 GameState::GameOver => {
-                    let mut d = rl.begin_drawing(&thread);
-                    
                     // Update & fetch user's best attempt stats
                     if first_state_visit {
                         first_state_visit = false;
                         updated_stats = api::make_calls::update_leaderboard(client, base_url, gamer_id, scoreboard.score, &time_elapsed).await;
                         match updated_stats {
                             Ok(ref leaderboard) => {
-                                high_score = leaderboard.high_score;
-                                time_taken = leaderboard.time.clone();
                                 println!("Leaderboard updated successfully");
+                                game_over_screen.render_static_screen(&mut rl, &thread, &scoreboard, &time_elapsed, leaderboard.high_score, &leaderboard.time.clone());
                             }
                             Err(ref e) => {
                                 println!("Error occurred while updating leaderboard: {}", e);
                             }
                         }
                     }
-
-                    let move_to_next_screen = game_over::game_over(&mut d, &mut scoreboard, high_score, &time_taken, &time_elapsed);
+                
+                    let move_to_next_screen = handle_game_over(&mut rl, &thread, &mut game_over_screen);
                     if move_to_next_screen {
                         first_state_visit = true;
                         game_state = GameState::Leaderboard;
