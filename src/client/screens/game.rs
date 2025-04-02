@@ -1,5 +1,4 @@
 use raylib::color::Color;
-use raylib::prelude::*;
 use reqwest::Client;
 use crate::api;
 use crate::client::models::structures::Leaderboard;
@@ -32,7 +31,7 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
         // Game Data
         let mut scoreboard: Scoreboard = Scoreboard::new();
         let mut time_elapsed: String = String::new();
-        let mut result: Result<Vec<Leaderboard>, reqwest::Error> = Ok(Vec::new());
+        let mut _result: Result<Vec<Leaderboard>, reqwest::Error> = Ok(Vec::new());
         let mut updated_stats: Result<Leaderboard, reqwest::Error>;
 
         // Game Objects
@@ -42,6 +41,7 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
 
         let mut game_start_screen = start::StartScreen::new(&mut rl, &thread);
         let mut game_over_screen = GameOverScreen::new(&mut rl, &thread);
+        let mut leaderboard_screen = leaderboard::LeaderboardScreen::new(&mut rl, &thread);
 
 
         while !rl.window_should_close() {
@@ -134,50 +134,36 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                     }
                 }
                 GameState::Leaderboard => {   
-                    let mut d = rl.begin_drawing(&thread);
-                    
-                    // Leaderboard Data Rendering Co-ordinates
-                    let rank_x = 150;
-                    let name_x = 250;
-                    let score_x = 500;
-                    let time_x = 650;
 
-                    leaderboard::draw_leaderboard_upper_half(&mut d);
-
-                    // Fetch and Display Leaderboard Data
+                    // Fetch Leaderboard Data
                     if first_state_visit {
-                        result = api::make_calls::get_leaderboard(client, base_url).await;
+                        _result = api::make_calls::get_leaderboard(client, base_url).await;
                         println!("Leaderboard fetched successfully");
                         first_state_visit = false;
-                    }
-                    match result {
-                        Ok(ref leaderboard) if !leaderboard.is_empty() => {
-                            for (index, entry) in leaderboard.iter().enumerate() {
-                                let rank = (index + 1).to_string();
-                                let name = &entry.gamer_id;
-                                let score = entry.high_score.to_string();
-                                let time = &entry.time;
-                
-                                let row_y = 230 + (index as i32 * 50);
-                
-                                d.draw_text(&rank, rank_x, row_y, 25, Color::BLACK);
-                                d.draw_text(name, name_x, row_y, 25, Color::BLACK);
-                                d.draw_text(&score, score_x, row_y, 25, Color::BLACK);
-                                d.draw_text(time, time_x, row_y, 25, Color::BLACK);
+                    
+                        match _result {
+                            Ok(ref leaderboard) if !leaderboard.is_empty() => {
+                                let mut leaderboard_entries: Vec<Leaderboard> = Vec::new();
+                                for entry in leaderboard {
+                                    leaderboard_entries.push(Leaderboard {
+                                        gamer_id: entry.gamer_id.clone(),
+                                        high_score: entry.high_score,
+                                        time: entry.time.clone(),
+                                    });
+                                }
+                                leaderboard_screen.render_static_screen(&mut rl, &thread, &leaderboard_entries);
                             }
-                        }
-                        Ok(_) => {
-                            let msg = "Leaderboard is empty. No entries found.";
-                            let msg_width = measure_text(msg, 25);
-                            d.draw_text(msg, (800 - msg_width) / 2, 250, 25, Color::RED);
-                        }
-                        Err(ref e) => {
-                            let error_msg = format!("Error occurred while fetching leaderboard: {}", e);
-                            print!("{}", error_msg);
+                            Ok(_) => {
+                                leaderboard_screen.render_for_empty_leaderboard(&mut rl, &thread);
+                            }
+                            Err(ref e) => {
+                                let error_msg = format!("Error occurred while fetching leaderboard: {}", e);
+                                print!("{}", error_msg);
+                            }
                         }
                     }
 
-                    if leaderboard::draw_leaderboard_lower_half(&mut d) {
+                    if leaderboard::handle_leaderboard_rendering(&mut rl, &thread, &mut leaderboard_screen) {
                         first_state_visit = true;
                         game_state = GameState::StartScreen;
                     }
