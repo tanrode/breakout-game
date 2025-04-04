@@ -5,7 +5,6 @@ edition = "2024"
 
 [dependencies]
 lazy_static = "1.5.0"
-mockall = "0.13.1"
 mockito = "0.30"
 raylib = "3.7"
 reqwest = { version="0.12.15", features = ["json"] }
