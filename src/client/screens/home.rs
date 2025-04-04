@@ -27,7 +27,7 @@ pub fn get_input_from_user<R: BufRead, P: PasswordReader>(mut reader: R, mut pas
     let gamer_id = gamer_id.trim().to_string();
 
     if gamer_id.is_empty() || gamer_id.len() < 3 || gamer_id.len() > 30 || !gamer_id.chars().all(|c| c.is_alphanumeric()) {
-        return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Error: GamerID must be alphanumeric and between 3 and 30 characters."));
+        return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "GamerID must be alphanumeric and between 3 and 30 characters."));
     }
 
     print!("Enter Password: ");
@@ -42,13 +42,13 @@ pub fn get_input_from_user<R: BufRead, P: PasswordReader>(mut reader: R, mut pas
     }
 
     if password.is_empty() || password.len() < 8 || password.len() > 30 {
-        return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Error: Password must be between 8 and 30 characters."));
+        return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Password must be between 8 and 30 characters."));
     }
 
     if !password.chars().any(|c| c.is_ascii_uppercase())
         || !password.chars().any(|c| c.is_ascii_digit())
         || !password.chars().any(|c| !c.is_ascii_alphanumeric()) {
-        return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Error: Password must be at least 8 characters long and include an uppercase letter, a number, and a special character."));
+        return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Password must be at least 8 characters long and include an uppercase letter, a number, and a special character."));
     }
 
     Ok((gamer_id, password))

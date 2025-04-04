@@ -1,6 +1,6 @@
 use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle};
 
-pub fn check_collision(ball: &mut Ball) -> bool {
+pub fn check_collision_ball_wall(ball: &mut Ball) -> bool {
     // Wall collision (Left & Right Walls)
     if ball.x - ball.radius <= 0.0 || ball.x + ball.radius >= 800.0 {
         ball.dx *= -1.0;

@@ -1,15 +1,9 @@
 use raylib::color::Color;
-use raylib::prelude::*;
 use reqwest::Client;
 use crate::api;
-use crate::client::models::structures::Leaderboard;
-use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle};
+use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle, structures::Leaderboard};
 use crate::client::helpers;
-use crate::client::screens::scoreboard::Scoreboard;
-use crate::client::screens::start;
-use crate::client::screens::game_play;
-use crate::client::screens::game_over;
-use crate::client::screens::leaderboard;
+use crate::client::screens::{start::{StartScreen, handle_game_start}, game_play::game_play, leaderboard::{LeaderboardScreen, handle_leaderboard_rendering}, game_over::{GameOverScreen, handle_game_over}, scoreboard::Scoreboard};
 
 enum GameState {
     StartScreen,
@@ -30,15 +24,18 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
         // Game Data
         let mut scoreboard: Scoreboard = Scoreboard::new();
         let mut time_elapsed: String = String::new();
-        let mut result: Result<Vec<Leaderboard>, reqwest::Error> = Ok(Vec::new());
+        let mut _result: Result<Vec<Leaderboard>, reqwest::Error> = Ok(Vec::new());
         let mut updated_stats: Result<Leaderboard, reqwest::Error>;
-        let mut high_score: i32 = 0;
-        let mut time_taken: String = String::new();
 
         // Game Objects
         let mut ball: Ball = Ball::new(300.0, 300.0, 10.0, 8.0, 8.0);
         let mut paddle: Paddle = Paddle::new(400.0, 700.0, 100.0, 20.0, 16.0);
         let mut bricks: Vec<Brick> = Vec::new();
+
+        // Game Screens
+        let mut game_start_screen = StartScreen::new(&mut rl, &thread);
+        let mut game_over_screen = GameOverScreen::new(&mut rl, &thread);
+        let mut leaderboard_screen = LeaderboardScreen::new(&mut rl, &thread);
 
 
         while !rl.window_should_close() {
@@ -67,13 +64,18 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                         }
                     }
 
-                    let mut d = rl.begin_drawing(&thread);
-                    
-                    if start::start(gamer_id, &mut d) {
-                        first_state_visit = true;
-                        scoreboard = Scoreboard::new();
-                        game_state = GameState::Playing;
+                    if first_state_visit {
+                        game_start_screen.render_static_screen(&mut rl, &thread, gamer_id);
+                        first_state_visit = false;
                     }
+                    else{
+                        if handle_game_start(&mut rl, &thread, &mut game_start_screen) {
+                            first_state_visit = true;
+                            scoreboard = Scoreboard::new();
+                            game_state = GameState::Playing;
+                        }
+                    }
+
                 }
                 GameState::Playing => {
                     // Updating Game Objects
@@ -81,7 +83,7 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                     paddle.update(&mut rl);
                 
                     // Collision Checks
-                    let is_game_valid: bool = helpers::collisions::check_collision(&mut ball);
+                    let is_game_valid: bool = helpers::collisions::check_collision_ball_wall(&mut ball);
                     if !is_game_valid || scoreboard.score == 70 {
                         first_state_visit = true;
                         time_elapsed = scoreboard.get_time_elapsed();
@@ -101,78 +103,61 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                 
                     // Rendering Game Objects
                     let mut d = rl.begin_drawing(&thread);
-                    game_play::game_play(&mut d, &mut ball, &mut paddle, &mut bricks, &mut scoreboard);
+                    game_play(&mut d, &mut ball, &mut paddle, &mut bricks, &mut scoreboard);
                 }
                 GameState::GameOver => {
-                    let mut d = rl.begin_drawing(&thread);
-                    
                     // Update & fetch user's best attempt stats
                     if first_state_visit {
                         first_state_visit = false;
                         updated_stats = api::make_calls::update_leaderboard(client, base_url, gamer_id, scoreboard.score, &time_elapsed).await;
                         match updated_stats {
                             Ok(ref leaderboard) => {
-                                high_score = leaderboard.high_score;
-                                time_taken = leaderboard.time.clone();
                                 println!("Leaderboard updated successfully");
+                                game_over_screen.render_static_screen(&mut rl, &thread, &scoreboard, &time_elapsed, leaderboard.high_score, &leaderboard.time.clone());
                             }
                             Err(ref e) => {
                                 println!("Error occurred while updating leaderboard: {}", e);
                             }
                         }
                     }
-
-                    let move_to_next_screen = game_over::game_over(&mut d, &mut scoreboard, high_score, &time_taken, &time_elapsed);
+                
+                    let move_to_next_screen = handle_game_over(&mut rl, &thread, &mut game_over_screen);
                     if move_to_next_screen {
                         first_state_visit = true;
                         game_state = GameState::Leaderboard;
                     }
                 }
                 GameState::Leaderboard => {   
-                    let mut d = rl.begin_drawing(&thread);
-                    
-                    // Leaderboard Data Rendering Co-ordinates
-                    let rank_x = 150;
-                    let name_x = 250;
-                    let score_x = 500;
-                    let time_x = 650;
 
-                    leaderboard::draw_leaderboard_upper_half(&mut d);
-
-                    // Fetch and Display Leaderboard Data
+                    // Fetch Leaderboard Data
                     if first_state_visit {
-                        result = api::make_calls::get_leaderboard(client, base_url).await;
+                        _result = api::make_calls::get_leaderboard(client, base_url).await;
                         println!("Leaderboard fetched successfully");
                         first_state_visit = false;
-                    }
-                    match result {
-                        Ok(ref leaderboard) if !leaderboard.is_empty() => {
-                            for (index, entry) in leaderboard.iter().enumerate() {
-                                let rank = (index + 1).to_string();
-                                let name = &entry.gamer_id;
-                                let score = entry.high_score.to_string();
-                                let time = &entry.time;
-                
-                                let row_y = 230 + (index as i32 * 50);
-                
-                                d.draw_text(&rank, rank_x, row_y, 25, Color::BLACK);
-                                d.draw_text(name, name_x, row_y, 25, Color::BLACK);
-                                d.draw_text(&score, score_x, row_y, 25, Color::BLACK);
-                                d.draw_text(time, time_x, row_y, 25, Color::BLACK);
+                    
+                        match _result {
+                            Ok(ref leaderboard) if !leaderboard.is_empty() => {
+                                let mut leaderboard_entries: Vec<Leaderboard> = Vec::new();
+                                for entry in leaderboard {
+                                    leaderboard_entries.push(Leaderboard {
+                                        gamer_id: entry.gamer_id.clone(),
+                                        high_score: entry.high_score,
+                                        time: entry.time.clone(),
+                                    });
+                                }
+                                leaderboard_screen.render_static_screen(&mut rl, &thread, &leaderboard_entries);
                             }
-                        }
-                        Ok(_) => {
-                            let msg = "Leaderboard is empty. No entries found.";
-                            let msg_width = measure_text(msg, 25);
-                            d.draw_text(msg, (800 - msg_width) / 2, 250, 25, Color::RED);
-                        }
-                        Err(ref e) => {
-                            let error_msg = format!("Error occurred while fetching leaderboard: {}", e);
-                            print!("{}", error_msg);
+                            Ok(_) => {
+                                leaderboard_screen.render_for_empty_leaderboard(&mut rl, &thread);
+                            }
+                            Err(ref e) => {
+                                let error_msg = format!("Error occurred while fetching leaderboard: {}", e);
+                                print!("{}", error_msg);
+                            }
                         }
                     }
 
-                    if leaderboard::draw_leaderboard_lower_half(&mut d) {
+                    if handle_leaderboard_rendering(&mut rl, &thread, &mut leaderboard_screen) {
                         first_state_visit = true;
                         game_state = GameState::StartScreen;
                     }
