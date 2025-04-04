@@ -1,16 +1,9 @@
 use raylib::color::Color;
 use reqwest::Client;
 use crate::api;
-use crate::client::models::structures::Leaderboard;
-use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle};
+use crate::client::models::{ball::Ball, brick::Brick, paddle::Paddle, structures::Leaderboard};
 use crate::client::helpers;
-use crate::client::screens::scoreboard::Scoreboard;
-use crate::client::screens::start;
-use crate::client::screens::game_play;
-use crate::client::screens::leaderboard;
-
-use super::game_over::{handle_game_over, GameOverScreen};
-use super::start::handle_game_start;
+use crate::client::screens::{start::{StartScreen, handle_game_start}, game_play::game_play, leaderboard::{LeaderboardScreen, handle_leaderboard_rendering}, game_over::{GameOverScreen, handle_game_over}, scoreboard::Scoreboard};
 
 enum GameState {
     StartScreen,
@@ -39,9 +32,10 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
         let mut paddle: Paddle = Paddle::new(400.0, 700.0, 100.0, 20.0, 16.0);
         let mut bricks: Vec<Brick> = Vec::new();
 
-        let mut game_start_screen = start::StartScreen::new(&mut rl, &thread);
+        // Game Screens
+        let mut game_start_screen = StartScreen::new(&mut rl, &thread);
         let mut game_over_screen = GameOverScreen::new(&mut rl, &thread);
-        let mut leaderboard_screen = leaderboard::LeaderboardScreen::new(&mut rl, &thread);
+        let mut leaderboard_screen = LeaderboardScreen::new(&mut rl, &thread);
 
 
         while !rl.window_should_close() {
@@ -89,7 +83,7 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                     paddle.update(&mut rl);
                 
                     // Collision Checks
-                    let is_game_valid: bool = helpers::collisions::check_collision(&mut ball);
+                    let is_game_valid: bool = helpers::collisions::check_collision_ball_wall(&mut ball);
                     if !is_game_valid || scoreboard.score == 70 {
                         first_state_visit = true;
                         time_elapsed = scoreboard.get_time_elapsed();
@@ -109,7 +103,7 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                 
                     // Rendering Game Objects
                     let mut d = rl.begin_drawing(&thread);
-                    game_play::game_play(&mut d, &mut ball, &mut paddle, &mut bricks, &mut scoreboard);
+                    game_play(&mut d, &mut ball, &mut paddle, &mut bricks, &mut scoreboard);
                 }
                 GameState::GameOver => {
                     // Update & fetch user's best attempt stats
@@ -163,7 +157,7 @@ pub async fn game(client: &Client, base_url: &str, gamer_id: &str) {
                         }
                     }
 
-                    if leaderboard::handle_leaderboard_rendering(&mut rl, &thread, &mut leaderboard_screen) {
+                    if handle_leaderboard_rendering(&mut rl, &thread, &mut leaderboard_screen) {
                         first_state_visit = true;
                         game_state = GameState::StartScreen;
                     }
