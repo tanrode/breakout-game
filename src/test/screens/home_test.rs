@@ -24,7 +24,7 @@ mod tests {
 
     #[test]
     fn test_valid_input() {
-        let input = b"test123\nP@ssw0rd\n";
+        let input = b"test123";
         let mut reader = Cursor::new(input);
         let password_reader = MockPasswordReader::new("P@ssw0rd");
 
@@ -40,9 +40,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Error: GamerID must be alphanumeric and between 3 and 30 characters.")]
+    #[should_panic(expected = "GamerID must be alphanumeric and between 3 and 30 characters.")]
     fn test_invalid_gamer_id() {
-        let input = b"ta\nP@ssw0rd\n";
+        let input = b"ta";
         let mut reader = Cursor::new(input);
         let password_reader = MockPasswordReader::new("P@ssw0rd");
 
@@ -58,9 +58,9 @@ mod tests {
     #[test]
     #[should_panic(expected = "Error: Password must be between 8 and 30 characters.")]
     fn test_invalid_password() {
-        let input = b"test123\npass1\n"; // Invalid password (empty)
+        let input = b"test123"; // Invalid password (empty)
         let mut reader = Cursor::new(input);
-        let password_reader = MockPasswordReader::new(""); // Empty password
+        let password_reader = MockPasswordReader::new("pass1"); // Empty password
 
         let credentials = get_input_from_user(&mut reader, password_reader);
 
